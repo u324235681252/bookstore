@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Аренда книги - {{ book.title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card p-4">
+            <h2 class="mb-4">
+                <i class="fas fa-book-reader"></i> Аренда книги
+            </h2>
+
+            <div class="card bg-light p-3 mb-4">
+                <div class="row align-items-center">
+                    <div class="col-md-3">
+                        <img src="{{ book.get_image }}" class="img-fluid rounded" alt="{{ book.title }}">
+                    </div>
+                    <div class="col-md-9">
+                        <h4>{{ book.title }}</h4>
+                        <p class="mb-0"><strong>Автор:</strong> {{ book.author.name }}</p>
+                        <p class="mb-0"><strong>Год:</strong> {{ book.year }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <h5 class="mb-3">Выберите период аренды:</h5>
+
+                <div class="mb-3">
+                    <div class="form-check p-3 border rounded mb-2" style="cursor: pointer;">
+                        <input class="form-check-input" type="radio" name="rental_period" id="period1" value="14" required>
+                        <label class="form-check-label w-100" for="period1" style="cursor: pointer;">
+                            <div class="d-flex justify-content-between">
+                                <span><strong>2 недели</strong></span>
+                                <span class="text-primary fw-bold">{{ book.rental_price_2weeks }} ₽</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="form-check p-3 border rounded mb-2" style="cursor: pointer;">
+                        <input class="form-check-input" type="radio" name="rental_period" id="period2" value="30" required>
+                        <label class="form-check-label w-100" for="period2" style="cursor: pointer;">
+                            <div class="d-flex justify-content-between">
+                                <span><strong>1 месяц</strong></span>
+                                <span class="text-primary fw-bold">{{ book.rental_price_1month }} ₽</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="form-check p-3 border rounded mb-2" style="cursor: pointer;">
+                        <input class="form-check-input" type="radio" name="rental_period" id="period3" value="90" required>
+                        <label class="form-check-label w-100" for="period3" style="cursor: pointer;">
+                            <div class="d-flex justify-content-between">
+                                <span><strong>3 месяца</strong></span>
+                                <span class="text-primary fw-bold">{{ book.rental_price_3months }} ₽</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> После окончания срока аренды вы получите напоминание о необходимости вернуть книгу
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex">
+                    <button type="submit" class="btn btn-primary btn-lg flex-grow-1">
+                        <i class="fas fa-check"></i> Арендовать книгу
+                    </button>
+                    <a href="{% url 'book_detail' book.id %}" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-times"></i> Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

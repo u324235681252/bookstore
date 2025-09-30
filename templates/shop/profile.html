@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}Профиль - {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card p-4 text-center">
+            <div class="mb-3">
+                <i class="fas fa-user-circle fa-5x text-primary"></i>
+            </div>
+            <h3>{{ user.username }}</h3>
+            {% if user.first_name or user.last_name %}
+                <p class="text-muted">{{ user.first_name }} {{ user.last_name }}</p>
+            {% endif %}
+            <p class="text-muted">{{ user.email }}</p>
+
+            {% if user.is_staff %}
+                <span class="badge bg-danger mb-3">Администратор</span>
+            {% else %}
+                <span class="badge bg-primary mb-3">Пользователь</span>
+            {% endif %}
+
+            <hr>
+
+            <div class="text-start">
+                <h6>Контактная информация</h6>
+                {% if profile.phone %}
+                    <p><i class="fas fa-phone"></i> {{ profile.phone }}</p>
+                {% endif %}
+                {% if profile.address %}
+                    <p><i class="fas fa-map-marker-alt"></i> {{ profile.address }}</p>
+                {% endif %}
+
+                <h6 class="mt-3">Настройки</h6>
+                <p>
+                    <i class="fas fa-envelope"></i>
+                    Уведомления:
+                    {% if profile.email_notifications %}
+                        <span class="badge bg-success">Включены</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Выключены</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card p-4 mb-4">
+            <h4 class="mb-3">
+                <i class="fas fa-chart-line"></i> Статистика
+            </h4>
+            <div class="row text-center">
+                <div class="col-md-6 mb-3">
+                    <div class="p-3 bg-light rounded">
+                        <i class="fas fa-shopping-bag fa-2x text-success mb-2"></i>
+                        <h3>{{ user.purchases.count }}</h3>
+                        <p class="text-muted mb-0">Покупок</p>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="p-3 bg-light rounded">
+                        <i class="fas fa-book-reader fa-2x text-primary mb-2"></i>
+                        <h3>{{ user.rentals.count }}</h3>
+                        <p class="text-muted mb-0">Аренд</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-4 mb-4">
+            <h4 class="mb-3">
+                <i class="fas fa-clock"></i> Активные аренды
+            </h4>
+            {% if user.rentals.all %}
+                <div class="list-group">
+                    {% for rental in user.rentals.all %}
+                        {% if not rental.returned %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ rental.book.title }}</h6>
+                                        <small class="text-muted">
+                                            Истекает {{ rental.expires_at|date:"d.m.Y" }}
+                                            (осталось {{ rental.days_until_expiry }} дней)
+                                        </small>
+                                    </div>
+                                    <div>
+                                        {% if rental.is_expired %}
+                                            <span class="badge bg-danger">Просрочена</span>
+                                        {% elif rental.days_until_expiry <= 3 %}
+                                            <span class="badge bg-warning">Скоро истекает</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Активна</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted text-center py-3">Нет активных аренд</p>
+            {% endif %}
+        </div>
+
+        <div class="card p-4">
+            <h4 class="mb-3">
+                <i class="fas fa-history"></i> Последние покупки
+            </h4>
+            {% if user.purchases.all %}
+                <div class="list-group">
+                    {% for purchase in user.purchases.all|slice:":5" %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ purchase.book.title }}</h6>
+                                    <small class="text-muted">{{ purchase.purchased_at|date:"d.m.Y в H:i" }}</small>
+                                </div>
+                                <span class="text-success fw-bold">{{ purchase.price }} ₽</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <a href="{% url 'my_purchases' %}" class="btn btn-outline-primary mt-3">
+                    Все покупки <i class="fas fa-arrow-right"></i>
+                </a>
+            {% else %}
+                <p class="text-muted text-center py-3">Нет покупок</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

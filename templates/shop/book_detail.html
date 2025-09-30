@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ book.title }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'book_list' %}">Каталог</a></li>
+        <li class="breadcrumb-item active">{{ book.title }}</li>
+    </ol>
+</nav>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card">
+            <img src="{{ book.get_image }}" class="card-img-top" alt="{{ book.title }}" style="height: 600px; object-fit: cover;">
+            <div class="card-body">
+                {% if book.status == 'available' %}
+                    <div class="alert alert-success text-center">
+                        <i class="fas fa-check-circle"></i> <strong>В наличии</strong> ({{ book.stock }} шт.)
+                    </div>
+                {% else %}
+                    <div class="alert alert-danger text-center">
+                        <i class="fas fa-times-circle"></i> <strong>Недоступна</strong>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card p-4">
+            <h1 class="display-6 fw-bold mb-3">{{ book.title }}</h1>
+
+            <div class="mb-4">
+                <span class="badge bg-primary me-2">{{ book.category.name }}</span>
+                <span class="badge bg-secondary">{{ book.year }} год</span>
+            </div>
+
+            <div class="mb-4">
+                <h5><i class="fas fa-user-edit text-primary"></i> Автор</h5>
+                <p class="lead">{{ book.author.name }}</p>
+                {% if book.author.biography %}
+                    <p class="text-muted">{{ book.author.biography|truncatewords:30 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="mb-4">
+                <h5><i class="fas fa-align-left text-primary"></i> Описание</h5>
+                <p class="text-justify">{{ book.description }}</p>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-info-circle text-primary"></i> Информация</h5>
+                    <ul class="list-unstyled">
+                        <li><strong>ISBN:</strong> {{ book.isbn }}</li>
+                        <li><strong>Издательство:</strong> {{ book.publisher }}</li>
+                        <li><strong>Страниц:</strong> {{ book.pages }}</li>
+                        <li><strong>Язык:</strong> {{ book.language }}</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5><i class="fas fa-ruble-sign text-primary"></i> Цены</h5>
+                    <ul class="list-unstyled">
+                        <li><strong>Покупка:</strong> <span class="text-success fw-bold">{{ book.price }} ₽</span></li>
+                        <li><strong>Аренда 2 недели:</strong> {{ book.rental_price_2weeks }} ₽</li>
+                        <li><strong>Аренда 1 месяц:</strong> {{ book.rental_price_1month }} ₽</li>
+                        <li><strong>Аренда 3 месяца:</strong> {{ book.rental_price_3months }} ₽</li>
+                    </ul>
+                </div>
+            </div>
+
+            {% if user.is_authenticated %}
+                {% if book.status == 'available' %}
+                    <div class="d-grid gap-2 d-md-flex">
+                        <a href="{% url 'purchase_book' book.id %}" class="btn btn-success btn-lg flex-grow-1">
+                            <i class="fas fa-shopping-cart"></i> Купить за {{ book.price }} ₽
+                        </a>
+                        <a href="{% url 'rent_book' book.id %}" class="btn btn-primary btn-lg flex-grow-1">
+                            <i class="fas fa-book-reader"></i> Арендовать
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> К сожалению, эта книга сейчас недоступна
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <a href="{% url 'login' %}" class="alert-link">Войдите</a> или
+                    <a href="{% url 'register' %}" class="alert-link">зарегистрируйтесь</a>,
+                    чтобы купить или арендовать эту книгу
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="mt-5">
+    <a href="{% url 'book_list' %}" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left"></i> Вернуться к каталогу
+    </a>
+</div>
+{% endblock %}
